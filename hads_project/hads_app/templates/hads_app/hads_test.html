@@ -1,0 +1,180 @@
+<!-- hads_app/templates/hads_app/hads_test.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HADS Test</title>
+    <style>
+        /* Add your custom CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5; /* Light gray background color */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff; /* White container background */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            border-radius: 5px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000; /* Black title text color */
+        }
+
+        fieldset {
+            border: 1px solid #ccc; /* Light gray border around each question */
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        legend {
+            font-size: 20px; /* Slightly larger legend text size */
+            font-weight: bold;
+        }
+
+        label {
+            font-size: 16px; /* Question text size */
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        textarea {
+            width: 100%; /* Make the textarea occupy full width */
+            height: 120px; /* Set the default height for the textarea */
+            resize: vertical; /* Allow vertical resizing of the textarea */
+            font-size: 16px; /* Textbox text size */
+            padding: 5px;
+            border: 1px solid #ccc; /* Light gray border around the textarea */
+            border-radius: 5px;
+        }
+
+        .center-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Style the submit button */
+        .submit-button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #007bff; /* Blue button background */
+            color: #fff; /* White button text color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .name-label {
+            font-size: 16px; /* Name label text size */
+            margin-bottom: 10px;
+        }
+
+        .name-input {
+            width: 100%; /* Make the input field occupy full width */
+            padding: 5px;
+            font-size: 16px; /* Name input text size */
+            border: 1px solid #ccc; /* Light gray border around the input field */
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        function validateForm() {
+            // Get all fieldsets in the form
+            var fieldsets = document.getElementsByTagName("fieldset");
+    
+            // Loop through each fieldset and check if the user has selected a choice for each question
+            for (var i = 0; i < fieldsets.length - 1; i++) { // Exclude the last fieldset (mood rating)
+                var fieldset = fieldsets[i];
+                var inputs = fieldset.getElementsByTagName("input");
+                var answered = false;
+    
+                // Check if at least one input is checked (for radio buttons)
+                for (var j = 0; j < inputs.length; j++) {
+                    if (inputs[j].type === "radio" && inputs[j].checked) {
+                        answered = true;
+                        break;
+                    }
+                }
+    
+                // Check if the textarea is filled (for subjective questions)
+                var textarea = fieldset.querySelector("textarea");
+                if (textarea && textarea.value.trim() !== "") {
+                    answered = true;
+                }
+    
+                // If any question in the fieldset is not answered, show an alert and prevent form submission
+                if (!answered) {
+                    alert("Please answer all questions before submitting.");
+                    return false;
+                }
+            }
+    
+            // Check if the mood rating is a valid number (between 1 and 10)
+            var moodRatingInput = document.getElementsByName("mood_rating")[0];
+            var moodRating = parseInt(moodRatingInput.value);
+            console.log("Mood Rating:", moodRating);
+    
+            if (isNaN(moodRating) || moodRating < 1 || moodRating > 10) {
+                alert("Please enter a valid mood rating between 1 and 10.");
+                return false;
+            }
+    
+            // If all questions are answered and mood rating is valid, allow form submission
+            return true;
+        }
+    </script>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Hospital Anxiety and Depression Scale (HADS)</h1>
+        <form method="post" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <label for="user_name" class="name-label">Your Name (Optional):</label>
+            <input type="text" name="user_name" id="user_name" class="name-input" maxlength="100"><br>
+            {% for question in hads_questions %}
+            <fieldset>
+                <legend>{{ question.text }}</legend>
+                {% for choice in question.choices.all %}
+                <label>
+                    <input type="radio" name="{{ question.subscale }}_{{ question.id }}" value="{{ choice.id }}">
+                    {{ choice.text }}
+                </label><br>
+                {% endfor %}
+            </fieldset>
+            {% endfor %}
+            {% for question in subjective_questions %}
+            <fieldset>
+                <legend>{{ question.text }}</legend>
+                <textarea name="{{ question.id }}"></textarea><br>
+            </fieldset>
+            {% endfor %}
+            <fieldset>
+                <legend>How would you rate your mood on a scale of 1-10?</legend>
+                <input type="number" name="mood_rating" min="1" max="10">
+            </fieldset>
+            <div class="center-button">
+                <button class="submit-button" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

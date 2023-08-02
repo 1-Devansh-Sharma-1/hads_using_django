@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HADS Result</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+        }
+
+        .result-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .result-caption {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .normal {
+            color: #28a745;
+        }
+
+        .borderline-abnormal {
+            color: #ffc107;
+        }
+
+        .abnormal {
+            color: #dc3545;
+        }
+
+        .back-button {
+            display: block;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+
+        .back-button {
+            display: block;
+            margin: 0 auto;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Hospital Anxiety and Depression Scale (HADS) Test Result</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6 result-section">
+                <div class="result-chart">
+                    <canvas id="anxietyChart" width="150" height="150"></canvas>
+                </div>
+                <h3 class="result-title">ANXIETY LEVEL</h3>
+                <p class="result-caption">
+                    Anxiety Score: {{ test_result.anxiety_scores }}<br>
+                    Interpretation:
+                    {% if test_result.anxiety_scores >= 0 and test_result.anxiety_scores <= 7 %}
+                        <span class="normal">NORMAL</span>
+                    {% elif test_result.anxiety_scores >= 8 and test_result.anxiety_scores <= 10 %}
+                        <span class="borderline-abnormal">BORDERLINE ABNORMAL</span>
+                    {% else %}
+                        <span class="abnormal">ABNORMAL</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6 result-section">
+                <div class="result-chart">
+                    <canvas id="depressionChart" width="150" height="150"></canvas>
+                </div>
+                <h3 class="result-title">DEPRESSION LEVEL</h3>
+                <p class="result-caption">
+                    Depression Score: {{ test_result.depression_scores }}<br>
+                    Interpretation:
+                    {% if test_result.depression_scores >= 0 and test_result.depression_scores <= 7 %}
+                        <span class="normal">NORMAL</span>
+                    {% elif test_result.depression_scores >= 8 and test_result.depression_scores <= 10 %}
+                        <span class="borderline-abnormal">BORDERLINE ABNORMAL</span>
+                    {% else %}
+                        <span class="abnormal">ABNORMAL</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+    <button class="back-button" onclick="location.href='/'">Back to Title Screen</button>
+    <div class="center-button mt-4 text-end">
+        <button class="btn btn-outline-primary" onclick="location.href='/admin/'">Go to Admin Site</button>
+    </div>
+
+    <script>
+        // Chart.js code for anxiety chart
+        var anxietyData = [{{ test_result.anxiety_scores }}, 21 - {{ test_result.anxiety_scores }}];
+        var anxietyConfig = {
+            type: "doughnut",
+            data: {
+                labels: ["Anxiety Level", "Remaining"],
+                datasets: [{
+                    data: anxietyData,
+                    backgroundColor: ["#dc3545", "#e0e0e0"],
+                }],
+            },
+            options: {
+                cutout: "80%", 
+                layout: {
+                    padding: 20,
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+            },
+        };
+    
+        var anxietyCtx = document.getElementById("anxietyChart").getContext("2d");
+        new Chart(anxietyCtx, anxietyConfig);
+    
+        // Chart.js code for depression chart
+        var depressionData = [{{ test_result.depression_scores }}, 21 - {{ test_result.depression_scores }}];
+        var depressionConfig = {
+            type: "doughnut",
+            data: {
+                labels: ["Depression Level", "Remaining"],
+                datasets: [{
+                    data: depressionData,
+                    backgroundColor: ["#ffc107", "#e0e0e0"],
+                }],
+            },
+            options: {
+                cutout: "80%", 
+                layout: {
+                    padding: 20,
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+            },
+        };
+    
+        var depressionCtx = document.getElementById("depressionChart").getContext("2d");
+        new Chart(depressionCtx, depressionConfig);
+    </script>
+</body>
+</html>
