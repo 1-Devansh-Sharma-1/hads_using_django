@@ -117,15 +117,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'  # URL prefix for static files (usually /static/)
 
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
+# Specify the location where static files should be collected during deployment
+STATIC_ROOT = 'staticfiles'  # This should be the path relative to your app root
 
+# Additional directories to search for static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'hads_project/static'),
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
